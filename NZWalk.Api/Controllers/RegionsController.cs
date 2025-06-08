@@ -18,22 +18,37 @@ namespace NZWalk.Api.Controllers
         private readonly NZWalksDbContext dbContext;
         private readonly IRegionRepository regionRepository;
         private readonly IMapper mapper;
+        private readonly ILogger<RegionsController> logger;
 
-        public RegionsController(NZWalksDbContext dbContext, IRegionRepository regionRepository, IMapper mapper)
+        public RegionsController(NZWalksDbContext dbContext,
+            IRegionRepository regionRepository,
+            IMapper mapper,
+            ILogger<RegionsController> logger)
         {
             this.dbContext = dbContext;
             this.regionRepository=regionRepository;
             this.mapper=mapper;
+            this.logger=logger;
         }
 
         // GET All Region
         [HttpGet]
-        [Authorize(Roles = "Reader,Writer")]
+       // [Authorize(Roles = "Reader,Writer")]
         public async Task<IActionResult> GetAll()
         {
-            var regionsDomain = await regionRepository.GetAllAsync();
-
-            return Ok(mapper.Map<List<RegionDto>>(regionsDomain));
+            try
+            {
+                logger.LogInformation("this is the kind");
+                throw new Exception("This is a custom exception");
+                var regionsDomain = await regionRepository.GetAllAsync();
+                logger.LogInformation("information");
+                return Ok(mapper.Map<List<RegionDto>>(regionsDomain));
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, ex.Message);
+                throw;
+            }            
         }
 
         // GET Single Region(by ID)
